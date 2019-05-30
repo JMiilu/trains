@@ -1,0 +1,127 @@
+*,
+*::before,
+*::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+html,
+body {
+    height: 100vh;
+}
+
+body {
+    color: #333;
+    background: #fff;
+}
+
+#topheader {
+    padding: 1rem 2.5rem;
+    background-color: #56a319;
+    box-shadow: 3px 3px 3px 0px rgba(0, 0, 0, 0.75);
+    margin-bottom: 3px;
+}
+
+#topheader h1 {
+    color: #fff;
+    font-size: 1.5rem;
+}
+
+main {
+    padding: 2rem 2.5rem;
+}
+
+main header {
+    margin-bottom: 3rem;
+}
+
+button,
+input {
+    color: #333;
+    background-color: #eee;
+    border: 1px solid transparent;
+    padding: 10px;
+    font-size: 16px;
+}
+
+input {
+    margin-right: -4px;
+}
+
+label {
+    display: block;
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+label:hover {
+    cursor: pointer;
+}
+
+/* Style the tab */
+.tab {
+    border-bottom: 1px solid #bbb;
+    display: flex;
+    flex-grow: 0;
+}
+
+/* Style the buttons that are used to open the tab content */
+.tab button {
+    background-color: inherit;
+    color: #56a319;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 10px;
+}
+
+/* Change background color of buttons on hover */
+.tab button:hover {
+    color: #333;
+}
+
+/* Create an active/current tablink class */
+.tab button.active {
+    color: #333;
+    border: 1px solid #bbb;
+    border-bottom: 1px solid #fff;
+    border-radius: 5px 5px 0 0;
+    margin-bottom: -1px;
+}
+
+/* Style the tab content */
+.tabcontent {
+    display: none;
+    border: none;
+    padding: 1rem 0;
+}
+
+table {
+    border-collapse: collapse;
+}
+
+th {
+    color: #888;
+    font-weight: normal;
+}
+
+th,
+td {
+    padding: 5px 10px;
+}
+
+tbody tr {
+    border-top: 1px solid #bbb;
+}
+
+tbody tr:nth-child(odd) {
+    background-color: #eee;
+}
+
+.hidden {
+    display: none;
+}
+
+p:not(:last-child) {
+    margin: 0 0 20px;
+}
