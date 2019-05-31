@@ -27,6 +27,11 @@ body {
     font-size: 1.5rem;
 }
 
+footer {
+    padding: 1rem 2.5rem;
+    border-top: 1px solid #bbb;
+}
+
 main {
     padding: 2rem 2.5rem;
 }
