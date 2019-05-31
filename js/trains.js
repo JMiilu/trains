@@ -57,16 +57,16 @@ const buildTable = function(tableData, isArrival) {
     const tBody = document.createElement("tbody");
 
     tableData.forEach(function(rowData) {
-        let timeString = `${rowData.scheduledTime.toLocaleTimeString("fi")}`;
+        let timeString = `${rowData.scheduledTime.toTimeString().substr(0, 5)}`;
 
         if (
             rowData.actualTime.getTime() - rowData.scheduledTime.getTime() >
             1000
         ) {
             // train is late
-            timeString = `${rowData.actualTime.toLocaleTimeString(
-                "fi"
-            )} (${timeString})`;
+            timeString = `${rowData.actualTime
+                .toTimeString()
+                .substr(0, 5)} (${timeString})`;
         }
 
         const template = document.createElement("template");
@@ -114,7 +114,7 @@ const listTrains = function(stationCode, isArrival) {
             });
 
             if (stations.length !== 1) {
-                // FIXME:
+                // FIXME: do something smarter
                 // train should only arrive/depart a station once
                 // skip this weird train
                 return;
@@ -138,13 +138,33 @@ const listTrains = function(stationCode, isArrival) {
             trains.push(train);
         });
 
-        tab.appendChild(buildTable(trains, isArrival));
+        tab.replaceChild(buildTable(trains, isArrival), tab.firstChild);
     };
+};
+
+const setupStationsList = function(stationData) {
+    const form = document.getElementsByTagName("form")[0];
+    const stationInput = document.getElementById("station");
+    const dataList = document.createElement("datalist");
+
+    stationData.forEach(function(station) {
+        if (!station.passengerTraffic) {return;}
+
+        const option = document.createElement("option");
+        option.value = station.stationShortCode;
+        option.innerText = station.stationName;
+        dataList.appendChild(option);
+    });
+
+    dataList.id = "stationlist";
+    stationInput.setAttribute("list", dataList.id);
+    form.appendChild(dataList);
 };
 
 (function() {
     const tabcontent = document.getElementsByClassName("tabcontent");
     const tablinks = document.getElementsByClassName("tablink");
+    const form = document.getElementsByTagName("form")[0];
 
     // setup event listeners to tablinks
     for (let i = 0; i < tablinks.length; i++) {
@@ -153,13 +173,39 @@ const listTrains = function(stationCode, isArrival) {
         }
     }
 
+    // fetch stations
+    fetch("https://rata.digitraffic.fi/api/v1/metadata/stations")
+        .then(handleResponse)
+        .then(setupStationsList)
+        .catch(handleError);
+
     // open the first tab initially
     tablinks[0].click();
-})();
 
-fetch(
-    "https://rata.digitraffic.fi/api/v1/live-trains/station/HKI?arrived_trains=0&arriving_trains=20&departed_trains=0&departing_trains=0&include_nonstopping=false"
-)
-    .then(handleResponse)
-    .then(listTrains("HKI", true))
-    .catch(handleError);
+    form.addEventListener("submit", function(evt) {
+        // prevent form submit
+        evt.preventDefault();
+
+        const station = document.getElementById("station");
+
+        // fetch arrivals
+        fetch(
+            `https://rata.digitraffic.fi/api/v1/live-trains/station/${
+                station.value
+            }?arrived_trains=0&arriving_trains=10&departed_trains=0&departing_trains=0&include_nonstopping=false`
+        )
+            .then(handleResponse)
+            .then(listTrains(station.value, true))
+            .catch(handleError);
+
+        // fetch departures
+        fetch(
+            `https://rata.digitraffic.fi/api/v1/live-trains/station/${
+                station.value
+            }?arrived_trains=0&arriving_trains=0&departed_trains=0&departing_trains=10&include_nonstopping=false`
+        )
+            .then(handleResponse)
+            .then(listTrains(station.value, false))
+            .catch(handleError);
+    });
+})();
