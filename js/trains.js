@@ -71,6 +71,7 @@ const buildTable = function(tableData, isArrival) {
                 .substr(0, 5)} (${timeString})`;
         }
 
+        // TODO: replace station code with the actual station name
         // use template element to create domNodes from html
         // (see: https://stackoverflow.com/a/35385518)
         const template = document.createElement("template");
@@ -202,6 +203,7 @@ const setupStationsList = function(stationData) {
         const station = document.getElementById("station");
 
         // TODO: check active tab (arrivals or departures) and search data first for that tab
+        // TODO: sort trains in the order of arrival/departure (based on the scheduled time in the timetable)
 
         // fetch arrivals
         fetch(
