@@ -48,6 +48,8 @@ const buildTable = function(tableData, isArrival) {
         ? ["Juna", "Lähtöasema", "Pääteasema", "Saapuu"]
         : ["Juna", "Lähtöasema", "Pääteasema", "Lähtee"];
 
+    // use template element to create domNodes from html
+    // (see: https://stackoverflow.com/a/35385518)
     const template = document.createElement("template");
     template.innerHTML = `<thead><tr><th>${headings[0]}</th><th>${
         headings[1]
@@ -63,12 +65,14 @@ const buildTable = function(tableData, isArrival) {
             rowData.actualTime.getTime() - rowData.scheduledTime.getTime() >
             1000
         ) {
-            // train is late
+            // the train is late
             timeString = `${rowData.actualTime
                 .toTimeString()
                 .substr(0, 5)} (${timeString})`;
         }
 
+        // use template element to create domNodes from html
+        // (see: https://stackoverflow.com/a/35385518)
         const template = document.createElement("template");
         template.innerHTML = `<tr><td>${rowData.code}</td><td>${
             rowData.source.stationShortCode
@@ -77,7 +81,9 @@ const buildTable = function(tableData, isArrival) {
         }</td><td>${timeString}</td></tr>`;
 
         const row = template.content.firstChild;
+
         if (rowData.cancelled) {
+            // train is cancelled
             row.classList.add("cancelled");
         }
         tBody.appendChild(row);
@@ -105,7 +111,7 @@ const listTrains = function(stationCode, isArrival) {
             const stations = trainData.timeTableRows.filter(function(
                 stationData
             ) {
-                // filter out the station specific timetable
+                // filter out the station specific timetable row
                 return (
                     stationData.stationShortCode === stationCode &&
                     stationData.trainStopping &&
@@ -143,12 +149,17 @@ const listTrains = function(stationCode, isArrival) {
 };
 
 const setupStationsList = function(stationData) {
+    // setup a datalist for station input field
+    // TODO: hide station codes from user and allow user to type full station name
+    // TODO: implement autocomplete (see: https://www.w3schools.com/howto/howto_js_autocomplete.asp)
     const form = document.getElementsByTagName("form")[0];
     const stationInput = document.getElementById("station");
     const dataList = document.createElement("datalist");
 
     stationData.forEach(function(station) {
-        if (!station.passengerTraffic) {return;}
+        if (!station.passengerTraffic) {
+            return;
+        }
 
         const option = document.createElement("option");
         option.value = station.stationShortCode;
@@ -166,27 +177,31 @@ const setupStationsList = function(stationData) {
     const tablinks = document.getElementsByClassName("tablink");
     const form = document.getElementsByTagName("form")[0];
 
-    // setup event listeners to tablinks
+    // setup event listeners to tablinks (assume that tablinks and tabcontents are in the same order)
     for (let i = 0; i < tablinks.length; i++) {
         if (i < tabcontent.length) {
+            // only add event listener if there is corresponding content section
             tablinks[i].addEventListener("click", showTab(tabcontent[i].id));
         }
     }
 
+    // open the first tab initially
+    tablinks[0].click();
+
     // fetch stations
+    // TODO: implement autocomplete (see: https://www.w3schools.com/howto/howto_js_autocomplete.asp)
     fetch("https://rata.digitraffic.fi/api/v1/metadata/stations")
         .then(handleResponse)
         .then(setupStationsList)
         .catch(handleError);
-
-    // open the first tab initially
-    tablinks[0].click();
 
     form.addEventListener("submit", function(evt) {
         // prevent form submit
         evt.preventDefault();
 
         const station = document.getElementById("station");
+
+        // TODO: check active tab (arrivals or departures) and search data first for that tab
 
         // fetch arrivals
         fetch(
